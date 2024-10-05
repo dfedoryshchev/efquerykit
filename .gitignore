@@ -1,0 +1,9 @@
+bin/
+obj/
+*.user
+.vs/
+.idea/
+artifacts/
+TestResults/
+*.nupkg
+*.snupkg
