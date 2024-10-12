@@ -1,16 +1,19 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace EfQueryKit.Paging;
 
-// does 2 round trips for now (count + the page). want to get it down to one
-// with COUNT(*) OVER() but the ef mapping is annoying, todo
+// ok this works. COUNT(*) OVER() puts the total on every row, read it off the first one.
+// one round trip now instead of two. caller writes the sql w/ the count col + limit/offset.
 public static class PagingExtensions
 {
     public static async Task<Page<TRow>> ToPagedResultAsync<TRow>(
-        this IQueryable<TRow> query, int pageNumber, int pageSize, CancellationToken ct = default)
+        this DatabaseFacade database, FormattableString pagedSql,
+        int pageNumber, int pageSize, CancellationToken ct = default)
+        where TRow : class, ITotalRow
     {
-        var total = await query.CountAsync(ct);
-        var items = await query.Skip(pageNumber * pageSize).Take(pageSize).ToListAsync(ct);
-        return new Page<TRow>(items, total, pageNumber, pageSize);
+        var rows = await database.SqlQuery<TRow>(pagedSql).ToListAsync(ct);
+        var total = rows.Count == 0 ? 0 : rows[0].TotalCount;
+        return new Page<TRow>(rows, total, pageNumber, pageSize);
     }
 }
