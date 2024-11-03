@@ -2,12 +2,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EfQueryKit.FullText;
 
-// trying to express MATCH(..) AGAINST(..) from linq. cant get ef to translate it. wip, broken.
+// gave up on the linq translation, dropping to raw sql. boolean mode only for now.
 public static class FullTextExtensions
 {
-    public static IQueryable<T> WhereFullText<T>(this DbSet<T> set, string column, string term) where T : class
+    public static IQueryable<T> WhereFullText<T>(this DbSet<T> set, string table, string column, string term)
+        where T : class
     {
-        // ef wont translate a random method. need to register a db function or drop to raw sql.
-        return set.Where(x => Match(column, term));
+        var sql = "SELECT * FROM `" + table + "` WHERE MATCH(`" + column + "`) AGAINST ({0} IN BOOLEAN MODE)";
+#pragma warning disable EF1002
+        return set.FromSqlRaw(sql, term);
+#pragma warning restore EF1002
     }
 }
