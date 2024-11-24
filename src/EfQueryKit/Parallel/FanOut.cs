@@ -1,13 +1,19 @@
 namespace EfQueryKit.Parallel;
 
-// run the independent subqueries at the same time instead of one after another.
-// each one makes its own DbContext (a single context isnt thread-safe).
+// run the independent subqueries at the same time, but cap it - was opening too many
+// connections at once and draining the pool. each query makes its own DbContext.
 public static class FanOut
 {
     public static async Task<IReadOnlyList<T>> RunAsync<T>(
-        IEnumerable<Func<CancellationToken, Task<T>>> queries, CancellationToken ct = default)
+        IEnumerable<Func<CancellationToken, Task<T>>> queries, int maxConcurrency, CancellationToken ct = default)
     {
-        var tasks = queries.Select(q => q(ct));
+        using var gate = new SemaphoreSlim(maxConcurrency);
+        var tasks = queries.Select(async q =>
+        {
+            await gate.WaitAsync(ct);
+            try { return await q(ct); }
+            finally { gate.Release(); }
+        });
         return await Task.WhenAll(tasks);
     }
 }
