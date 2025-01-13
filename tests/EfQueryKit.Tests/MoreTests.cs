@@ -1,3 +1,4 @@
+using EfQueryKit.Parallel;
 using EfQueryKit.Schema;
 using EfQueryKit.Search;
 using Xunit;
@@ -24,5 +25,28 @@ public class ValueSquashTests
         Assert.Contains("GENERATED ALWAYS AS (CASE `type`", sql);
         Assert.Contains("WHEN 'string' THEN `string_value`", sql);
         Assert.Contains("ADD INDEX `ix_value_text`", sql);
+    }
+}
+
+public class FanOutTests
+{
+    [Fact]
+    public async Task RunAsync_respects_max_concurrency()
+    {
+        var current = 0;
+        var peak = 0;
+        var gate = new object();
+        var queries = Enumerable.Range(0, 20).Select<int, Func<CancellationToken, Task<int>>>(i => async ct =>
+        {
+            lock (gate) { current++; peak = Math.Max(peak, current); }
+            await Task.Delay(20, ct);
+            lock (gate) { current--; }
+            return i;
+        });
+
+        var results = await FanOut.RunAsync(queries, maxConcurrency: 4);
+
+        Assert.Equal(20, results.Count);
+        Assert.True(peak <= 4, $"peak concurrency was {peak}");
     }
 }
