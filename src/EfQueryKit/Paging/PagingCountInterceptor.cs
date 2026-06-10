@@ -4,8 +4,12 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace EfQueryKit.Paging;
 
-// grabs the sql right before it runs; if its a paged query, swaps the "0 AS TotalCount"
-// placeholder for COUNT(*) OVER(). bit hacky but it works.
+/// <summary>
+/// Captures the SQL on its way to the database and, when the paging tag is present, swaps the
+/// TotalCount placeholder (a constant 0 column) for COUNT(*) OVER(), so a paged LINQ query
+/// carries its own total. Register with
+/// <c>optionsBuilder.AddInterceptors(new PagingCountInterceptor())</c>.
+/// </summary>
 public sealed class PagingCountInterceptor : DbCommandInterceptor
 {
     public override InterceptionResult<DbDataReader> ReaderExecuting(
@@ -16,7 +20,9 @@ public sealed class PagingCountInterceptor : DbCommandInterceptor
     }
 
     public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
-        DbCommand command, CommandEventData eventData, InterceptionResult<DbDataReader> result,
+        DbCommand command,
+        CommandEventData eventData,
+        InterceptionResult<DbDataReader> result,
         CancellationToken cancellationToken = default)
     {
         Rewrite(command);
