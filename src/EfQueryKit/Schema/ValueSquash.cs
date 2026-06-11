@@ -1,9 +1,15 @@
 namespace EfQueryKit.Schema;
 
-// custom_field had the value spread across typed cols (string/select/bool) + a type col.
-// squash into one indexed text col so we can search/index it once.
+/// <summary>
+/// Collapses a type-per-column table (a value spread across typed columns plus a discriminator)
+/// into one indexed text column, so it can be searched and indexed once.
+/// </summary>
 public static class ValueSquash
 {
+    /// <summary>
+    /// Builds the DDL for a stored generated column that selects the right typed column by the
+    /// <c>type</c> discriminator, plus an index over it.
+    /// </summary>
     public static string BuildColumnSql(string table, string column, IReadOnlyDictionary<string, string> typeToColumn)
     {
         var cases = string.Join(" ", typeToColumn.Select(kv => "WHEN '" + kv.Key + "' THEN `" + kv.Value + "`"));

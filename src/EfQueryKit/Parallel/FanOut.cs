@@ -1,9 +1,13 @@
 namespace EfQueryKit.Parallel;
 
-// run the independent subqueries at the same time, but cap it - was opening too many
-// connections at once and draining the pool. each query makes its own DbContext.
+/// <summary>
+/// Runs independent subqueries concurrently with a capped degree of parallelism, so a single
+/// request does not drain the connection pool. Each query should create its own
+/// <c>DbContext</c>, since a single context is not thread-safe.
+/// </summary>
 public static class FanOut
 {
+    /// <summary>Runs <paramref name="queries"/> concurrently, at most <paramref name="maxConcurrency"/> at a time.</summary>
     public static async Task<IReadOnlyList<T>> RunAsync<T>(
         IEnumerable<Func<CancellationToken, Task<T>>> queries, int maxConcurrency, CancellationToken ct = default)
     {

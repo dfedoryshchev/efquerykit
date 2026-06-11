@@ -2,10 +2,14 @@ using System.Linq.Expressions;
 
 namespace EfQueryKit.Search;
 
-// ends-with cant use an index (leading wildcard). store the col reversed + index it,
-// then an ends-with becomes a starts-with (prefix) on the reversed column.
+/// <summary>
+/// "Ends with" search served by an index. A trailing wildcard cannot use a normal index, so the
+/// column is stored reversed and indexed; an ends-with then becomes a prefix search on the
+/// reversed column.
+/// </summary>
 public static class SuffixSearch
 {
+    /// <summary>Reverses a string (used to build the reversed-column value or the search prefix).</summary>
     public static string Reverse(string value)
     {
         var chars = value.ToCharArray();
@@ -13,7 +17,10 @@ public static class SuffixSearch
         return new string(chars);
     }
 
-    // reversedColumn = the generated REVERSE(col) column. reverse the term and match as a prefix.
+    /// <summary>
+    /// Matches rows whose <paramref name="reversedColumn"/> (a stored <c>REVERSE(col)</c> column)
+    /// ends with <paramref name="term"/>, as a prefix search on the reversed value.
+    /// </summary>
     public static IQueryable<T> WhereSuffix<T>(
         this IQueryable<T> source, Expression<Func<T, string>> reversedColumn, string term)
     {
