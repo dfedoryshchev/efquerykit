@@ -1,7 +1,22 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+  <PropertyGroup>
+    <PackageId>EfQueryKit</PackageId>
+    <Version>0.1.0</Version>
+    <Description>EF Core query extensions for MySQL: single round-trip paging, index hints, full-text match, suffix search, value squash, and parallel fan-out.</Description>
+    <PackageTags>efcore;mysql;pomelo;pagination;fulltext;query</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/dfedoryshchev/efquerykit</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
 </Project>
