@@ -1,5 +1,7 @@
 # EfQueryKit
 
+[![ci](https://github.com/dfedoryshchev/efquerykit/actions/workflows/ci.yml/badge.svg)](https://github.com/dfedoryshchev/efquerykit/actions/workflows/ci.yml)
+
 EF Core query extensions for MySQL-backed apps that outgrow naive LINQ.
 
 These came out of taking a heavily-used search feature from tens of seconds down to
