@@ -25,7 +25,8 @@ a MySQL server; the MySQL-specific pieces (index hints, full-text) target MySQL.
 ## Background
 
 The reasoning behind these, and why a ladder of cheaper fixes often beats jumping straight
-to a search engine, is written up here: "Search Before a Search Engine" (<article link>).
+to a search engine, is written up in a companion article, "Search Before a Search Engine"
+(link to follow once it is published).
 
 ## License
 
