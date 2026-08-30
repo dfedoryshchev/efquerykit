@@ -11,7 +11,9 @@ up needing.
 
 ## What's in it
 
-- **Paging** - the page of rows and the total in one round trip via `COUNT(*) OVER()`.
+- **Paging** - the page of rows and the total in one round trip via `COUNT(*) OVER()`. The
+  total rides on the rows, so a page past the end of the result has nothing to carry it and
+  costs one extra `COUNT`; every page that returns rows is still a single round trip.
 - **Index hints** - inject `FORCE INDEX` / `USE INDEX` when the planner picks the wrong one.
 - **Full-text** - `MATCH ... AGAINST` from a query helper.
 - **Suffix search** - "ends with" served by an index, via a reversed column.

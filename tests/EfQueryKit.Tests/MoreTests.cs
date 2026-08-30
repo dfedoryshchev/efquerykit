@@ -49,4 +49,41 @@ public class FanOutTests
         Assert.Equal(20, results.Count);
         Assert.True(peak <= 4, $"peak concurrency was {peak}");
     }
+
+    [Fact]
+    public async Task RunAsync_throws_before_running_anything_when_already_cancelled()
+    {
+        using var cts = new CancellationTokenSource();
+        cts.Cancel();
+        var ran = 0;
+        var queries = Enumerable.Range(0, 5).Select<int, Func<CancellationToken, Task<int>>>(i => ct =>
+        {
+            Interlocked.Increment(ref ran);
+            return Task.FromResult(i);
+        });
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(
+            () => FanOut.RunAsync(queries, maxConcurrency: 4, cts.Token));
+        Assert.Equal(0, ran);
+    }
+
+    [Fact]
+    public async Task RunAsync_skips_the_queued_queries_after_one_fails()
+    {
+        var ran = 0;
+        var queries = Enumerable.Range(0, 5).Select<int, Func<CancellationToken, Task<int>>>(i => async ct =>
+        {
+            if (i == 0)
+            {
+                throw new InvalidOperationException("boom");
+            }
+
+            Interlocked.Increment(ref ran);
+            await Task.Delay(20, ct);
+            return i;
+        });
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => FanOut.RunAsync(queries, maxConcurrency: 1));
+        Assert.Equal(0, ran);
+    }
 }
