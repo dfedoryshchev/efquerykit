@@ -23,8 +23,8 @@ up needing.
 ## Status
 
 Built as a personal playground across 2024-25, then cleaned up and released as v0.1.0.
-Targets .NET 8 and EF Core 8 (Pomelo MySQL). The samples run on SQLite so they work without
-a MySQL server; the MySQL-specific pieces (index hints, full-text) target MySQL.
+Targets .NET 8 and .NET 10, on EF Core 8 (Pomelo MySQL). The samples run on SQLite so they
+work without a MySQL server; the MySQL-specific pieces (index hints, full-text) target MySQL.
 
 ## Background
 
