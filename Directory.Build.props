@@ -5,12 +5,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <!--
-      One audit policy for every target framework. The SDK otherwise defaults net8.0 to
-      `direct` and net10.0 to `all`, so with warnings as errors the same tree restores on
-      one framework and fails on the other purely on transitive packages.
-    -->
-    <NuGetAuditMode>direct</NuGetAuditMode>
+    <!-- net8.0 defaults to `direct`, which skips advisories in transitive packages. -->
+    <NuGetAuditMode>all</NuGetAuditMode>
     <Authors>Dmitriy Fedoryshchev</Authors>
   </PropertyGroup>
 </Project>
